@@ -40,8 +40,15 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # L'Android SDK e' gia' preinstallato sui runner ubuntu-latest:
+      # qui verifichiamo solo che ci sia e accettiamo le licenze.
       - name: Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "SDK in: $SDK"; ls "$SDK/build-tools"
+          SM=$(ls -d "$SDK"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)
+          yes | "$SM" --licenses > /dev/null || true
 
       - name: Dipendenze e build web
         working-directory: ${{ env.PROJ }}
